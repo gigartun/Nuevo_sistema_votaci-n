@@ -82,40 +82,142 @@
     </section>
 
     <!-- Features -->
-    <section class="features-section py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Características Principales</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="feature-card text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-shield-alt fa-3x text-primary"></i>
-                        </div>
-                        <h4>Seguridad Total</h4>
-                        <p>Códigos únicos, encriptación local y validación en tiempo real.</p>
+<!-- Features -->
+<section class="features-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Características Principales</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
                     </div>
+                    <h4>Seguridad Total</h4>
+                    <p>Códigos únicos, encriptación local y validación en tiempo real.</p>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-mobile-alt fa-3x text-primary"></i>
-                        </div>
-                        <h4>Responsive Design</h4>
-                        <p>Funciona perfectamente en móviles, tablets y computadoras.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-mobile-alt fa-3x text-primary"></i>
                     </div>
+                    <h4>Responsive Design</h4>
+                    <p>Funciona perfectamente en móviles, tablets y computadoras.</p>
                 </div>
-                <div class="col-md-4">
-                    <div class="feature-card text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="fas fa-chart-pie fa-3x text-primary"></i>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chart-pie fa-3x text-primary"></i>
+                    </div>
+                    <h4>Análisis en Tiempo Real</h4>
+                    <p>Dashboard interactivo con gráficos y estadísticas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Formulario de Acceso Rápido -->
+<section class="quick-access-section py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fas fa-bolt me-2"></i>Acceso Rápido</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-center mb-4">Selecciona tu departamento para acceder rápidamente al sistema</p>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label for="quickTorre" class="form-label">Torre</label>
+                                <select id="quickTorre" class="form-select" onchange="cargarPisosRapido()">
+                                    <option value="">Selecciona torre...</option>
+                                    <!-- Opciones se cargan dinámicamente -->
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="quickPiso" class="form-label">Piso</label>
+                                <select id="quickPiso" class="form-select" disabled onchange="cargarDeptosRapido()">
+                                    <option value="">Selecciona piso...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="quickDepto" class="form-label">Departamento</label>
+                                <select id="quickDepto" class="form-select" disabled onchange="habilitarAccesoRapido()">
+                                    <option value="">Selecciona depto...</option>
+                                </select>
+                            </div>
                         </div>
-                        <h4>Análisis en Tiempo Real</h4>
-                        <p>Dashboard interactivo con gráficos y estadísticas.</p>
+                        
+                        <div id="quickAccessInfo" style="display: none;" class="alert alert-info">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong id="deptoSeleccionado"></strong> seleccionado
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary me-2" onclick="irARegistroRapido()">
+                                        <i class="fas fa-user-plus me-1"></i> Registrar
+                                    </button>
+                                    <button class="btn btn-success" onclick="irAVotacionRapido()">
+                                        <i class="fas fa-vote-yea me-1"></i> Votar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <small>Si ya tienes un código, puedes ir directamente a <a href="encuesta.html" class="alert-link">votar</a></small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- Instrucciones -->
+<section class="instructions-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">¿Cómo Funciona?</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="step-card text-center">
+                    <div class="step-number">1</div>
+                    <h5>Registro</h5>
+                    <p>Selecciona tu departamento y genera tu código único</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card text-center">
+                    <div class="step-number">2</div>
+                    <h5>Código</h5>
+                    <p>Recibe y guarda tu código personal de acceso</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card text-center">
+                    <div class="step-number">3</div>
+                    <h5>Votación</h5>
+                    <p>Accede con tu código y responde la encuesta</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card text-center">
+                    <div class="step-number">4</div>
+                    <h5>Resultados</h5>
+                    <p>Consulta los resultados en tiempo real</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
     <!-- Footer -->
     <footer class="bg-dark text-white py-4 mt-5">
