@@ -1,0 +1,27 @@
+sistema-votacion-web/
+├── index.html                 # Página principal
+├── registro.html              # Registro de votantes
+├── encuesta.html              # Sistema de votación
+├── admin.html                 # Panel de administración
+├── dashboard.html             # Dashboard de resultados
+├── css/
+│   ├── styles.css            # Estilos principales
+│   ├── responsive.css        # Media queries
+│   └── admin.css             # Estilos del panel admin
+├── js/
+│   ├── app.js                # Configuración y utilidades
+│   ├── database.js           # Base de datos local
+│   ├── registro.js           # Lógica de registro
+│   ├── encuesta.js           # Lógica de votación
+│   ├── admin.js              # Lógica de administración
+│   ├── seguridad.js          # Funciones de seguridad
+│   └── charts.js             # Gráficos para dashboard
+├── data/
+│   ├── estructura.json       # Configuración inicial
+│   ├── propietarios.json     # Base de datos
+│   ├── preguntas.json        # Preguntas activas
+│   └── config.json           # Configuración del sistema
+├── assets/
+│   └── images/               # Imágenes e íconos
+├── modules/                  # Módulos adicionales
+└── README.md                 # Documentación

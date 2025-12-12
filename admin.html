@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Sistema de Votación</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/admin.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-vote-yea"></i> Sistema de Votación
+            </a>
+            <div class="navbar-text text-light">
+                <span id="adminStatus">Panel de Administración</span>
+            </div>
+            <button class="btn btn-outline-light" onclick="cerrarSesion()">
+                <i class="fas fa-sign-out-alt me-1"></i> Salir
+            </button>
+        </div>
+    </nav>
+
+    <!-- Admin Container -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3">
+                <div class="admin-sidebar">
+                    <div class="sidebar-header">
+                        <h5><i class="fas fa-cogs me-2"></i>Administración</h5>
+                    </div>
+                    <ul class="nav flex-column" id="adminMenu">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-target="dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="propietarios">
+                                <i class="fas fa-users me-2"></i> Propietarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="preguntas">
+                                <i class="fas fa-question-circle me-2"></i> Preguntas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="respuestas">
+                                <i class="fas fa-poll me-2"></i> Respuestas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="codigos">
+                                <i class="fas fa-key me-2"></i> Códigos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="configuracion">
+                                <i class="fas fa-sliders-h me-2"></i> Configuración
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="seguridad">
+                                <i class="fas fa-shield-alt me-2"></i> Seguridad
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="herramientas">
+                                <i class="fas fa-tools me-2"></i> Herramientas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-target="backup">
+                                <i class="fas fa-database me-2"></i> Backup
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="sidebar-footer">
+                        <div class="admin-info">
+                            <p class="mb-1"><strong>Sistema:</strong> ${CONFIG.VERSION}</p>
+                            <p class="mb-0"><strong>Usuarios:</strong> <span id="totalUsuarios">0</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9">
+                <!-- Dashboard -->
+                <div id="sectionDashboard" class="admin-section active">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-tachometer-alt me-2"></i>Dashboard de Administración</h3>
+                        <p class="text-muted">Vista general del sistema y estadísticas</p>
+                    </div>
+                    
+                    <div id="adminAlertContainer"></div>
+                    
+                    <!-- Estadísticas rápidas -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="admin-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="adminStatUsers">0</div>
+                                    <div class="stat-label">Propietarios</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="admin-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-poll"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="adminStatResponses">0</div>
+                                    <div class="stat-label">Respuestas</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="admin-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="adminStatCompleted">0</div>
+                                    <div class="stat-label">Completados</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="admin-stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-number" id="adminStatParticipation">0%</div>
+                                    <div class="stat-label">Participación</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Acciones rápidas -->
+                    <div class="row mb-4">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <button class="btn btn-primary w-100" onclick="abrirSeccion('preguntas')">
+                                                <i class="fas fa-plus me-2"></i>Nueva Pregunta
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-success w-100" onclick="generarCodigosMasivos()">
+                                                <i class="fas fa-key me-2"></i>Generar Códigos
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-info w-100" onclick="exportarDatosCompletos()">
+                                                <i class="fas fa-download me-2"></i>Exportar Datos
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-warning w-100" onclick="actualizarSistema()">
+                                                <i class="fas fa-sync-alt me-2"></i>Actualizar Sistema
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actividad reciente -->
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-history me-2"></i>Actividad Reciente
+                                </div>
+                                <div class="card-body">
+                                    <div class="activity-timeline" id="activityTimeline">
+                                        <!-- Actividad se carga dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-chart-pie me-2"></i>Estado del Sistema
+                                </div>
+                                <div class="card-body">
+                                    <div class="system-status">
+                                        <div class="status-item">
+                                            <span class="status-label">Registro abierto:</span>
+                                            <span class="status-value" id="statusRegistro">No</span>
+                                        </div>
+                                        <div class="status-item">
+                                            <span class="status-label">Votación activa:</span>
+                                            <span class="status-value" id="statusVotacion">No</span>
+                                        </div>
+                                        <div class="status-item">
+                                            <span class="status-label">Resultados visibles:</span>
+                                            <span class="status-value" id="statusResultados">No</span>
+                                        </div>
+                                        <div class="status-item">
+                                            <span class="status-label">Último backup:</span>
+                                            <span class="status-value" id="statusBackup">Nunca</span>
+                                        </div>
+                                        <div class="status-item">
+                                            <span class="status-label">Espacio usado:</span>
+                                            <span class="status-value" id="statusEspacio">0 KB</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="verReporteDetallado()">
+                                            <i class="fas fa-file-alt me-1"></i> Ver reporte completo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Propietarios -->
+                <div id="sectionPropietarios" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-users me-2"></i>Gestión de Propietarios</h3>
+                        <p class="text-muted">Administre los propietarios registrados en el sistema</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Lista de Propietarios</h5>
+                                <div>
+                                    <button class="btn btn-primary me-2" onclick="agregarPropietario()">
+                                        <i class="fas fa-user-plus me-1"></i> Agregar
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="importarPropietarios()">
+                                        <i class="fas fa-file-import me-1"></i> Importar
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tablaPropietarios">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th>Departamento</th>
+                                            <th>Email</th>
+                                            <th>Teléfono</th>
+                                            <th>Estado</th>
+                                            <th>Votó</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaPropietariosBody">
+                                        <!-- Propietarios se cargan dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filtros y búsqueda -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Filtros y Búsqueda</h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Buscar por nombre</label>
+                                    <input type="text" class="form-control" id="buscarNombre" placeholder="Nombre..." 
+                                           oninput="filtrarPropietarios()">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Filtrar por estado</label>
+                                    <select class="form-select" id="filtroEstado" onchange="filtrarPropietarios()">
+                                        <option value="">Todos</option>
+                                        <option value="habilitado">Habilitados</option>
+                                        <option value="no-habilitado">No habilitados</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Filtrar por votación</label>
+                                    <select class="form-select" id="filtroVotacion" onchange="filtrarPropietarios()">
+                                        <option value="">Todos</option>
+                                        <option value="completado">Ya votaron</option>
+                                        <option value="pendiente">Pendientes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preguntas -->
+                <div id="sectionPreguntas" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-question-circle me-2"></i>Gestión de Preguntas</h3>
+                        <p class="text-muted">Cree y administre las preguntas de la encuesta</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Lista de Preguntas</h5>
+                                <button class="btn btn-primary" onclick="mostrarFormularioPregunta()">
+                                    <i class="fas fa-plus me-1"></i> Nueva Pregunta
+                                </button>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tablaPreguntas">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Pregunta</th>
+                                            <th>Tipo</th>
+                                            <th>Categoría</th>
+                                            <th>Obligatoria</th>
+                                            <th>Activa</th>
+                                            <th>Orden</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaPreguntasBody">
+                                        <!-- Preguntas se cargan dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulario de pregunta (oculto por defecto) -->
+                    <div class="card" id="formularioPregunta" style="display: none;">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <span id="formPreguntaTitulo">Nueva Pregunta</span>
+                                <button class="btn btn-sm btn-outline-secondary float-end" onclick="ocultarFormularioPregunta()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </h5>
+                            
+                            <form id="formPregunta" onsubmit="guardarPregunta(event)">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label">Texto de la pregunta *</label>
+                                        <textarea class="form-control" id="preguntaTexto" rows="3" required></textarea>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tipo de pregunta *</label>
+                                        <select class="form-select" id="preguntaTipo" required onchange="cambiarTipoPregunta()">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="multiple_choice">Opción múltiple</option>
+                                            <option value="yes_no">Sí/No</option>
+                                            <option value="rating">Calificación (1-5)</option>
+                                            <option value="scale">Escala</option>
+                                            <option value="text">Texto libre</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label">Categoría *</label>
+                                        <select class="form-select" id="preguntaCategoria" required>
+                                            <option value="">Seleccionar...</option>
+                                            <!-- Categorías se cargan dinámicamente -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label">Orden *</label>
+                                        <input type="number" class="form-control" id="preguntaOrden" min="1" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6" id="opcionesContainer" style="display: none;">
+                                        <label class="form-label">Opciones (separadas por |)</label>
+                                        <input type="text" class="form-control" id="preguntaOpciones" 
+                                               placeholder="Ej: Opción 1|Opción 2|Opción 3">
+                                        <div class="form-text">Para preguntas de opción múltiple y escala</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" id="preguntaObligatoria">
+                                            <label class="form-check-label" for="preguntaObligatoria">
+                                                Pregunta obligatoria
+                                            </label>
+                                        </div>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" id="preguntaActiva" checked>
+                                            <label class="form-check-label" for="preguntaActiva">
+                                                Pregunta activa
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i> Guardar Pregunta
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="ocultarFormularioPregunta()">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Respuestas -->
+                <div id="sectionRespuestas" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-poll me-2"></i>Gestión de Respuestas</h3>
+                        <p class="text-muted">Vea y analice las respuestas recibidas</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-chart-bar me-2"></i>Análisis por Pregunta
+                                </div>
+                                <div class="card-body">
+                                    <div id="analisisAdminContainer">
+                                        <p class="text-muted">Seleccione una pregunta para ver el análisis detallado</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-filter me-2"></i>Filtros
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Seleccionar pregunta</label>
+                                        <select class="form-select" id="selectPreguntaAdmin" onchange="cargarAnalisisAdmin()">
+                                            <option value="">Todas las preguntas</option>
+                                            <!-- Preguntas se cargan dinámicamente -->
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Filtrar por categoría</label>
+                                        <select class="form-select" id="selectCategoriaAdmin" onchange="filtrarAnalisis()">
+                                            <option value="">Todas las categorías</option>
+                                            <!-- Categorías se cargan dinámicamente -->
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Ordenar por</label>
+                                        <select class="form-select" id="selectOrdenAdmin" onchange="ordenarAnalisis()">
+                                            <option value="fecha">Fecha (más reciente)</option>
+                                            <option value="pregunta">Pregunta</option>
+                                            <option value="categoria">Categoría</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-table me-2"></i>Respuestas Detalladas
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tablaRespuestas">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Propietario</th>
+                                            <th>Pregunta</th>
+                                            <th>Respuesta</th>
+                                            <th>Categoría</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaRespuestasBody">
+                                        <!-- Respuestas se cargan dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Códigos -->
+                <div id="sectionCodigos" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-key me-2"></i>Gestión de Códigos</h3>
+                        <p class="text-muted">Administre los códigos de acceso generados</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Códigos Generados</h5>
+                                <div>
+                                    <button class="btn btn-primary me-2" onclick="generarCodigosIndividuales()">
+                                        <i class="fas fa-key me-1"></i> Generar Códigos
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="exportarCodigos()">
+                                        <i class="fas fa-download me-1"></i> Exportar
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tablaCodigos">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Propietario</th>
+                                            <th>Departamento</th>
+                                            <th>Generado</th>
+                                            <th>Usado</th>
+                                            <th>Fecha Uso</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaCodigosBody">
+                                        <!-- Códigos se cargan dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-cogs me-2"></i>Generar Códigos Masivos
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">Genera códigos para todos los propietarios que no tengan uno:</p>
+                                    <div class="mb-3">
+                                        <label class="form-label">Seleccionar filtro</label>
+                                        <select class="form-select" id="filtroCodigos">
+                                            <option value="todos">Todos los propietarios</option>
+                                            <option value="sin-codigo">Sin código asignado</option>
+                                            <option value="habilitados">Solo habilitados</option>
+                                            <option value="no-votaron">No han votado</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-success w-100" onclick="generarCodigosMasivosConfirmar()">
+                                        <i class="fas fa-bolt me-1"></i> Generar Códigos Seleccionados
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-chart-pie me-2"></i>Estadísticas de Códigos
+                                </div>
+                                <div class="card-body">
+                                    <div class="stats-container">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Total generados:</span>
+                                            <span class="stat-value" id="statCodigosGenerados">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Usados:</span>
+                                            <span class="stat-value text-success" id="statCodigosUsados">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Pendientes:</span>
+                                            <span class="stat-value text-warning" id="statCodigosPendientes">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Tasa de uso:</span>
+                                            <span class="stat-value text-info" id="statCodigosTasa">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Configuración -->
+                <div id="sectionConfiguracion" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-sliders-h me-2"></i>Configuración del Sistema</h3>
+                        <p class="text-muted">Configure los parámetros generales del sistema</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form id="formConfiguracion" onsubmit="guardarConfiguracion(event)">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <h5 class="mb-3"><i class="fas fa-cog me-2"></i>Configuración General</h5>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Nombre del sistema</label>
+                                            <input type="text" class="form-control" id="configNombre" 
+                                                   value="Sistema de Votación">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="configRegistroAbierto" checked>
+                                                <label class="form-check-label" for="configRegistroAbierto">
+                                                    Registro abierto
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="configVotacionAbierta" checked>
+                                                <label class="form-check-label" for="configVotacionAbierta">
+                                                    Votación abierta
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="configMostrarResultados">
+                                                <label class="form-check-label" for="configMostrarResultados">
+                                                    Mostrar resultados en dashboard
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <h5 class="mb-3"><i class="fas fa-shield-alt me-2"></i>Configuración de Seguridad</h5>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Prefijo de códigos</label>
+                                            <input type="text" class="form-control" id="configPrefijoCodigos" 
+                                                   value="ENC" maxlength="3">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Longitud de códigos</label>
+                                            <input type="number" class="form-control" id="configLongitudCodigos" 
+                                                   value="8" min="6" max="12">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Máximo de intentos fallidos</label>
+                                            <input type="number" class="form-control" id="configMaxIntentos" 
+                                                   value="3" min="1" max="10">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Tiempo de bloqueo (minutos)</label>
+                                            <input type="number" class="form-control" id="configTiempoBloqueo" 
+                                                   value="15" min="1" max="60">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-12">
+                                        <h5 class="mb-3"><i class="fas fa-building me-2"></i>Configuración de Estructura</h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label">Número de torres</label>
+                                                <input type="number" class="form-control" id="configNumTorres" 
+                                                       value="3" min="1" max="10">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Pisos por torre</label>
+                                                <input type="number" class="form-control" id="configPisosTorre" 
+                                                       value="10" min="1" max="50">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Deptos por piso</label>
+                                                <input type="number" class="form-control" id="configDeptosPiso" 
+                                                       value="4" min="1" max="20">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i> Guardar Configuración
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="cargarConfiguracionActual()">
+                                        <i class="fas fa-undo me-1"></i> Restaurar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seguridad -->
+                <div id="sectionSeguridad" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-shield-alt me-2"></i>Seguridad y Auditoría</h3>
+                        <p class="text-muted">Monitoree la seguridad del sistema y eventos de auditoría</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-history me-2"></i>Eventos de Seguridad
+                                </div>
+                                <div class="card-body">
+                                    <div class="security-events" id="securityEvents">
+                                        <!-- Eventos se cargan dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Alertas de Seguridad
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert-list" id="securityAlerts">
+                                        <!-- Alertas se cargan dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3"><i class="fas fa-tools me-2"></i>Herramientas de Seguridad</h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <button class="btn btn-warning w-100" onclick="limpiarIntentosFallidos()">
+                                        <i class="fas fa-undo me-1"></i> Limpiar intentos fallidos
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-info w-100" onclick="verReporteAuditoria()">
+                                        <i class="fas fa-file-alt me-1"></i> Reporte de auditoría
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger w-100" onclick="reiniciarSeguridad()">
+                                        <i class="fas fa-shield-alt me-1"></i> Reiniciar sistema de seguridad
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Herramientas -->
+                <div id="sectionHerramientas" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-tools me-2"></i>Herramientas de Administración</h3>
+                        <p class="text-muted">Utilidades y herramientas para el mantenimiento del sistema</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-database me-2"></i>Mantenimiento de Base de Datos
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <button class="btn btn-outline-primary w-100 mb-2" onclick="optimizarBaseDatos()">
+                                            <i class="fas fa-magic me-1"></i> Optimizar base de datos
+                                        </button>
+                                        <div class="form-text">Elimina datos temporales y optimiza espacio</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <button class="btn btn-outline-warning w-100 mb-2" onclick="limpiarDatosExpirados()">
+                                            <i class="fas fa-trash-alt me-1"></i> Limpiar datos expirados
+                                        </button>
+                                        <div class="form-text">Elimina códigos no usados después de 30 días</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <button class="btn btn-outline-info w-100 mb-2" onclick="reconstruirIndices()">
+                                            <i class="fas fa-sync-alt me-1"></i> Reconstruir índices
+                                        </button>
+                                        <div class="form-text">Reconstruye índices de búsqueda</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-file-export me-2"></i>Importación/Exportación
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Exportar datos</label>
+                                        <select class="form-select mb-2" id="exportTipo">
+                                            <option value="todos">Todos los datos</option>
+                                            <option value="propietarios">Propietarios</option>
+                                            <option value="preguntas">Preguntas</option>
+                                            <option value="respuestas">Respuestas</option>
+                                            <option value="codigos">Códigos</option>
+                                        </select>
+                                        <button class="btn btn-success w-100" onclick="exportarDatosSeleccionados()">
+                                            <i class="fas fa-download me-1"></i> Exportar
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Importar datos</label>
+                                        <input type="file" class="form-control mb-2" id="importFile" accept=".json,.csv">
+                                        <button class="btn btn-primary w-100" onclick="importarDatos()">
+                                            <i class="fas fa-upload me-1"></i> Importar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Zona de Peligro
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-skull-crossbones me-2"></i>
+                                <strong>Advertencia:</strong> Las siguientes acciones son irreversibles. 
+                                Asegúrese de tener un backup antes de proceder.
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger w-100" onclick="resetearEncuesta()">
+                                        <i class="fas fa-redo me-1"></i> Resetear encuesta
+                                    </button>
+                                    <div class="form-text">Elimina todas las respuestas</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger w-100" onclick="resetearCodigos()">
+                                        <i class="fas fa-key me-1"></i> Resetear códigos
+                                    </button>
+                                    <div class="form-text">Elimina todos los códigos</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger w-100" onclick="resetearSistema()">
+                                        <i class="fas fa-bomb me-1"></i> Resetear sistema completo
+                                    </button>
+                                    <div class="form-text">Elimina TODOS los datos</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Backup -->
+                <div id="sectionBackup" class="admin-section" style="display: none;">
+                    <div class="admin-header">
+                        <h3><i class="fas fa-database me-2"></i>Backup y Restauración</h3>
+                        <p class="text-muted">Administre las copias de seguridad del sistema</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-save me-2"></i>Crear Backup
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">Cree una copia de seguridad completa del sistema:</p>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre del backup</label>
+                                        <input type="text" class="form-control" id="backupNombre" 
+                                               placeholder="Ej: Backup Enero 2024">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción (opcional)</label>
+                                        <textarea class="form-control" id="backupDescripcion" rows="2"></textarea>
+                                    </div>
+                                    <button class="btn btn-success w-100" onclick="crearBackupManual()">
+                                        <i class="fas fa-save me-1"></i> Crear Backup
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-history me-2"></i>Backups Existentes
+                                </div>
+                                <div class="card-body">
+                                    <div class="backup-list" id="backupList">
+                                        <!-- Lista de backups se carga dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-upload me-2"></i>Restaurar Backup
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Advertencia:</strong> Restaurar un backup sobrescribirá todos los datos actuales. 
+                                Asegúrese de tener un backup actual antes de proceder.
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <select class="form-select" id="selectBackupRestaurar">
+                                        <option value="">Seleccione un backup...</option>
+                                        <!-- Backups se cargan dinámicamente -->
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger w-100" onclick="restaurarBackup()">
+                                        <i class="fas fa-upload me-1"></i> Restaurar Backup
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="adminLoading" class="text-center py-5" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p class="mt-3">Cargando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Sistema de Votación</h5>
+                    <p>Panel de Administración</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2024 Sistema de Votación. Todos los derechos reservados.</p>
+                    <p>Versión 2.0 - Modo Administrador</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/seguridad.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

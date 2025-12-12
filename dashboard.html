@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Resultados de Votación</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-vote-yea"></i> Sistema de Votación
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="registro.html">
+                            <i class="fas fa-user-plus"></i> Registro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="encuesta.html">
+                            <i class="fas fa-poll"></i> Votar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html">
+                            <i class="fas fa-chart-bar"></i> Resultados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.html">
+                            <i class="fas fa-cogs"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="container-fluid mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1><i class="fas fa-chart-line me-2"></i>Dashboard de Resultados</h1>
+                        <p class="text-muted">Estadísticas y análisis de la votación en tiempo real</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary me-2" onclick="actualizarDashboard()">
+                            <i class="fas fa-sync-alt me-1"></i> Actualizar
+                        </button>
+                        <button class="btn btn-primary" onclick="exportarReporte()">
+                            <i class="fas fa-download me-1"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estadísticas principales -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalProp">0</div>
+                    <div class="stat-label">Total Propietarios</div>
+                    <div class="stat-trend text-success" id="statTotalPropTrend">
+                        <i class="fas fa-users"></i> Registrados
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value text-success" id="statVotaron">0</div>
+                    <div class="stat-label">Han Votado</div>
+                    <div class="stat-trend" id="statVotaronTrend">
+                        <i class="fas fa-check-circle"></i> Completados
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value text-warning" id="statPendientes">0</div>
+                    <div class="stat-label">Pendientes</div>
+                    <div class="stat-trend" id="statPendientesTrend">
+                        <i class="fas fa-clock"></i> Por votar
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value text-info" id="statParticipacion">0%</div>
+                    <div class="stat-label">Participación</div>
+                    <div class="stat-trend" id="statParticipacionTrend">
+                        <i class="fas fa-chart-pie"></i> Tasa
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráficos principales -->
+        <div class="row mb-4">
+            <div class="col-lg-8 mb-4">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4><i class="fas fa-chart-bar me-2"></i>Participación por Torre</h4>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-primary active" onclick="cambiarVista('torre', 'bar')">Barras</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="cambiarVista('torre', 'pie')">Torta</button>
+                        </div>
+                    </div>
+                    <canvas id="chartParticipacionTorre"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="chart-container">
+                    <h4><i class="fas fa-chart-pie me-2"></i>Estado General</h4>
+                    <canvas id="chartEstadoGeneral"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Análisis por pregunta -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4><i class="fas fa-poll me-2"></i>Análisis por Pregunta</h4>
+                        <div class="col-md-3">
+                            <select id="selectPregunta" class="form-select" onchange="cargarAnalisisPregunta()">
+                                <option value="">Seleccione pregunta...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="analisisPreguntaContainer">
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Seleccione una pregunta para ver el análisis detallado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabla de resultados -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="chart-container">
+                    <h4><i class="fas fa-table me-2"></i>Resultados Detallados</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="tablaResultados">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Pregunta</th>
+                                    <th>Categoría</th>
+                                    <th>Respuestas</th>
+                                    <th>Más votada</th>
+                                    <th>%</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaResultadosBody">
+                                <!-- Datos se cargan dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información adicional -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="chart-container">
+                    <h4><i class="fas fa-history me-2"></i>Actividad Reciente</h4>
+                    <div id="actividadContainer" class="list-group list-group-flush">
+                        <!-- Actividad se carga dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="chart-container">
+                    <h4><i class="fas fa-info-circle me-2"></i>Información del Sistema</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Fecha inicio:</strong> <span id="infoFechaInicio">-</span></p>
+                            <p><strong>Última actualización:</strong> <span id="infoUltimaActualizacion">-</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Preguntas activas:</strong> <span id="infoPreguntasActivas">0</span></p>
+                            <p><strong>Total respuestas:</strong> <span id="infoTotalRespuestas">0</span></p>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <small>
+                            Los datos se actualizan automáticamente cada 30 segundos.
+                            Para información más detallada, acceda al panel de administración.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Sistema de Votación</h5>
+                    <p>Plataforma para comunidades de propietarios</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2024 Sistema de Votación. Todos los derechos reservados.</p>
+                    <p>Versión 2.0 - GitHub Pages</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/seguridad.js"></script>
+    <script src="js/charts.js"></script>
+    <script>
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDashboard();
+            setInterval(cargarDashboard, 30000); // Actualizar cada 30 segundos
+        });
+
+        async function cargarDashboard() {
+            try {
+                // Cargar estadísticas
+                const stats = await database.obtenerEstadisticas();
+                actualizarEstadisticas(stats);
+                
+                // Cargar preguntas
+                cargarPreguntas();
+                
+                // Cargar actividad reciente
+                cargarActividadReciente();
+                
+                // Actualizar información del sistema
+                actualizarInfoSistema();
+                
+            } catch (error) {
+                console.error('Error cargando dashboard:', error);
+            }
+        }
+
+        function actualizarEstadisticas(stats) {
+            document.getElementById('statTotalProp').textContent = stats.totalPropietarios || 0;
+            document.getElementById('statVotaron').textContent = stats.encuestasCompletadas || 0;
+            document.getElementById('statPendientes').textContent = stats.pendientes || 0;
+            document.getElementById('statParticipacion').textContent = stats.tasaRespuesta ? `${stats.tasaRespuesta}%` : '0%';
+            
+            // Actualizar tendencias
+            document.getElementById('statTotalPropTrend').innerHTML = 
+                `<i class="fas fa-users"></i> ${stats.totalPropietarios || 0} registrados`;
+            document.getElementById('statVotaronTrend').innerHTML = 
+                `<i class="fas fa-check-circle"></i> ${stats.encuestasCompletadas || 0} completados`;
+            document.getElementById('statPendientesTrend').innerHTML = 
+                `<i class="fas fa-clock"></i> ${stats.pendientes || 0} pendientes`;
+        }
+
+        function actualizarDashboard() {
+            cargarDashboard();
+            sistema.mostrarAlerta('Dashboard actualizado', 'success');
+        }
+
+        function exportarReporte() {
+            sistema.exportarDatos('todos');
+        }
+
+        function cargarPreguntas() {
+            const preguntas = database.obtenerTodos('preguntas').filter(p => p.activa);
+            const select = document.getElementById('selectPregunta');
+            
+            select.innerHTML = '<option value="">Seleccione pregunta...</option>';
+            preguntas.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.id}. ${p.texto.substring(0, 50)}...`;
+                select.appendChild(option);
+            });
+            
+            // Actualizar información
+            document.getElementById('infoPreguntasActivas').textContent = preguntas.length;
+            
+            // Actualizar tabla
+            actualizarTablaResultados(preguntas);
+        }
+
+        async function cargarAnalisisPregunta() {
+            const preguntaId = document.getElementById('selectPregunta').value;
+            if (!preguntaId) return;
+            
+            const analisis = await database.analizarPregunta(parseInt(preguntaId));
+            if (!analisis) return;
+            
+            const container = document.getElementById('analisisPreguntaContainer');
+            
+            if (analisis.total === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No hay respuestas para esta pregunta</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Crear gráfico
+            container.innerHTML = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <canvas id="chartAnalisisPregunta"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Resumen</h6>
+                                <p><strong>Total respuestas:</strong> ${analisis.total}</p>
+                                <p><strong>Opción más votada:</strong> ${analisis.analisis[0]?.opcion || 'N/A'}</p>
+                                <p><strong>Porcentaje:</strong> ${analisis.analisis[0]?.porcentaje || '0'}%</p>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Distribución:</h6>
+                            <div id="distribucionDetalle">
+                                ${analisis.analisis.map(item => `
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>${item.opcion}</span>
+                                        <span><strong>${item.conteo}</strong> (${item.porcentaje}%)</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Generar gráfico
+            const ctx = document.getElementById('chartAnalisisPregunta').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: analisis.analisis.map(item => item.opcion),
+                    datasets: [{
+                        label: 'Respuestas',
+                        data: analisis.analisis.map(item => item.conteo),
+                        backgroundColor: analisis.analisis.map((_, i) => 
+                            `hsl(${(i * 360 / analisis.analisis.length) % 360}, 70%, 60%)`
+                        )
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold' },
+                            formatter: (value) => value
+                        }
+                    }
+                }
+            });
+        }
+
+        function actualizarTablaResultados(preguntas) {
+            const tbody = document.getElementById('tablaResultadosBody');
+            tbody.innerHTML = '';
+            
+            preguntas.forEach(async (pregunta, index) => {
+                const analisis = await database.analizarPregunta(pregunta.id);
+                const masVotada = analisis?.analisis[0];
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${pregunta.texto.substring(0, 60)}...</td>
+                    <td><span class="badge bg-secondary">${pregunta.categoria}</span></td>
+                    <td>${analisis?.total || 0}</td>
+                    <td>${masVotada?.opcion?.substring(0, 20) || 'Sin datos'}</td>
+                    <td>${masVotada?.porcentaje || '0'}%</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="verDetallePregunta(${pregunta.id})">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('infoTotalRespuestas').textContent = 
+                preguntas.reduce((total, p) => total + (database.obtenerTodos('respuestas').filter(r => r.id_pregunta === p.id).length || 0), 0);
+        }
+
+        function cargarActividadReciente() {
+            const registros = database.obtenerTodos('registros')
+                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                .slice(0, 5);
+            
+            const container = document.getElementById('actividadContainer');
+            container.innerHTML = '';
+            
+            if (registros.length === 0) {
+                container.innerHTML = '<div class="text-center py-3 text-muted">No hay actividad reciente</div>';
+                return;
+            }
+            
+            registros.forEach(registro => {
+                const fecha = new Date(registro.fecha);
+                const item = document.createElement('div');
+                item.className = 'list-group-item';
+                item.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">Nueva votación registrada</h6>
+                        <small class="text-muted">${fecha.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                    </div>
+                    <p class="mb-1">Propietario completó la encuesta</p>
+                    <small class="text-muted">${fecha.toLocaleDateString('es-ES')}</small>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function actualizarInfoSistema() {
+            const config = database.obtenerTodos('configuraciones')[0] || {};
+            const preguntas = database.obtenerTodos('preguntas').filter(p => p.activa);
+            const propietarios = database.obtenerTodos('propietarios');
+            
+            document.getElementById('infoFechaInicio').textContent = 
+                config.fecha_creacion ? new Date(config.fecha_creacion).toLocaleDateString('es-ES') : '-';
+            document.getElementById('infoUltimaActualizacion').textContent = 
+                new Date().toLocaleString('es-ES');
+            document.getElementById('infoPreguntasActivas').textContent = preguntas.length;
+            document.getElementById('infoTotalRespuestas').textContent = 
+                database.obtenerTodos('respuestas').length;
+        }
+
+        function verDetallePregunta(id) {
+            document.getElementById('selectPregunta').value = id;
+            cargarAnalisisPregunta();
+        }
+
+        function cambiarVista(tipo, vista) {
+            // Cambiar vista de gráficos (bar/pie)
+            const btns = document.querySelectorAll(`[onclick*="${tipo}"]`);
+            btns.forEach(btn => btn.classList.toggle('active', btn.textContent.toLowerCase().includes(vista)));
+            
+            // Aquí se implementaría el cambio real de gráfico
+            console.log(`Cambiando vista de ${tipo} a ${vista}`);
+        }
+    </script>
+</body>
+</html>
